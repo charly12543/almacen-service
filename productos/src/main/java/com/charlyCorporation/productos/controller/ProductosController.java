@@ -20,8 +20,6 @@ import java.util.Optional;
  * Clase controladora que contiene los End-points
  */
 @RestController
-@RequestMapping("/producto")
-@PreAuthorize("denyALL()")
 public class ProductosController {
 
     /**

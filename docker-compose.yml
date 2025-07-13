@@ -70,6 +70,29 @@ services:
       - SPRING_DATASOURCE_PASSWORD=
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
 
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile.auth-service
+    mem_limit: 512m
+    ports:
+      - "8090:8090"  # Puedes ajustar este puerto si tu servicio usa otro
+    networks:
+      - almacen-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/almacen_ventas
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+
+
   carrito-compras:
     build:
       context: ./carrito-compras
