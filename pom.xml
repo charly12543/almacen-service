@@ -23,5 +23,6 @@
         <module>productos</module>
         <module>ventas</module>
         <module>carrito-compras</module>
+        <module>auth-service</module>
     </modules>
 </project>
