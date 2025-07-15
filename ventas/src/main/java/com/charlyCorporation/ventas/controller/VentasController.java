@@ -21,7 +21,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/ventas")
-@PreAuthorize("denyAll()")
 public class VentasController {
 
     /**

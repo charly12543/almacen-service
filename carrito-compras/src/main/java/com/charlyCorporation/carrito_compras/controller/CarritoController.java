@@ -18,8 +18,6 @@ import java.util.Optional;
  * Clase controladora que contien los End-points
  */
 @RestController
-@RequestMapping("/carrito")
-@PreAuthorize("denyAll()")
 public class CarritoController {
 
     /**

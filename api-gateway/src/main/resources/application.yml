@@ -15,22 +15,27 @@ spring:
           predicates:
             - Path=/api/productos/**
           filters:
-            - StripPrefix=2   # 🔥 Elimina "/api/productos"
+            - StripPrefix=2  # 🔥 Elimina "/api/productos"
 
         - id: ventas-service
           uri: lb://ventas-service
           predicates:
             - Path=/api/ventas/**
+          filters:
+            - StripPrefix=2  # 🔥 Elimina "/api/ventas"
 
         - id: carrito-service
           uri: lb://carrito-compras
           predicates:
             - Path=/api/carrito/**
+          filters:
+            - StripPrefix=2  # 🔥 Elimina "/api/carrito"
 
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/auth/**
+
 
 eureka:
   client:
