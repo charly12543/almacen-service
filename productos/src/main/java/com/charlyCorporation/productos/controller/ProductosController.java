@@ -73,6 +73,7 @@ public class ProductosController {
      * @return
      */
     @GetMapping("/find/{idProducto}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public ResponseEntity<?> findById(@PathVariable Long idProducto){
         Optional<Producto> prod = ser.findProducto(idProducto);
         return prod.map(ResponseEntity::ok)
@@ -87,6 +88,7 @@ public class ProductosController {
      * @return
      */
     @GetMapping("/findByNombre/{nombre}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public  ResponseEntity<?> findByNombre(@PathVariable String nombre){
         Optional<List<Producto>> prod = ser.findProductoByNombre(nombre);
         //Mensaje para probar el puerto donde se esta ejecutando el balanceador de carga
@@ -101,6 +103,7 @@ public class ProductosController {
      * @return
      */
     @DeleteMapping("/delete/{idProducto}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteProd(@PathVariable Long idProducto){
         Optional<Producto> p = ser.findProducto(idProducto);
         if(p.isPresent()){
@@ -108,17 +111,6 @@ public class ProductosController {
             return ResponseEntity.ok("Exito en la eliminacion del producto");
         }
         return ResponseEntity.notFound().build();
-    }
-
-    //End-points de prueba para el uso de los permisos
-    @GetMapping("/no-seguro")
-    public String noSeguro(){
-        return "Mensaje NO seguro";
-    }
-
-    @GetMapping("/seguro")
-    public String seguro(){
-        return "Mensaje SI seguro";
     }
 
 

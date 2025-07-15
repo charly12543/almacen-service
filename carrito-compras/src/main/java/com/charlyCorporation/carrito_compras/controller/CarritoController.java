@@ -38,6 +38,7 @@ public class CarritoController {
      * @return
      */
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('CREATE')")
     public ResponseEntity<?> saveCarrito(@RequestBody CarritoDTO d){
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 (service.saveCarrito(d.getIdCarrito(),d.getNomProductos())));
@@ -59,6 +60,7 @@ public class CarritoController {
      * @return
      */
     @GetMapping("/findByNombre/{nombre}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public ResponseEntity<?> findByNombre(@PathVariable String nombre ){
         List<ProductosDTO> list = service.findNombre(nombre);
         return ResponseEntity.ok(list);
@@ -70,6 +72,7 @@ public class CarritoController {
      * @return
      */
     @GetMapping("/find/{idCarrito}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public ResponseEntity<?> find(@PathVariable Long idCarrito){
         Optional<Carrito> car = service.findById(idCarrito);
         if(car.isPresent()){
@@ -85,6 +88,7 @@ public class CarritoController {
      * @return
      */
     @PutMapping("/add/{idCarrito}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public ResponseEntity<?> addProdToCar(@PathVariable long idCarrito,
                                  @RequestParam(required = false, name = "nombre")
                                  String nomProductos){
@@ -100,6 +104,7 @@ public class CarritoController {
      * @return
      */
     @PutMapping("/remove/{idCarrito}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public ResponseEntity<?> removeProdToCar(@PathVariable long idCarrito,
                                  @RequestParam(required = false, name = "nombre")
                                  String nomProductos){
@@ -113,6 +118,7 @@ public class CarritoController {
      * @return
      */
     @GetMapping("/delete/{idCarrito}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteCar(@PathVariable Long idCarrito){
         Optional<Carrito> car = service.findById(idCarrito);
         if(car.isPresent()) {

@@ -20,7 +20,6 @@ import java.util.Optional;
  * Clase controladora que contien los End-points
  */
 @RestController
-@RequestMapping("/ventas")
 public class VentasController {
 
     /**
@@ -35,6 +34,7 @@ public class VentasController {
      * @return
      */
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('CREATE')")
     public ResponseEntity<?> saveVenta(@Valid @RequestBody Ventas ventas,
                                             BindingResult result){
         Map<String, String> errores = new HashMap<>();
@@ -54,6 +54,7 @@ public class VentasController {
     }
 
     @GetMapping("/find/{idVenta}")
+    @PreAuthorize("hasRole('ADMIN', 'USER')")
     public ResponseEntity<?> findByIdDTO(@PathVariable Long idVenta){
         Optional<VentasDTO> ventas = service.findById(idVenta);
         if(ventas.isPresent()) {
