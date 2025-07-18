@@ -25,15 +25,26 @@ public class JwtAuthFilter implements GlobalFilter {
     @Value("${security.jwt.user.generator}")
     private String jwtIssuer;
 
+
     private final List<String> openEndpoints = List.of(
-            "/auth/login", "/auth/register", "/eureka"
+            "/auth/login",
+            "/auth/register",
+            "/auth/oauth2/authorization/github",
+            "/auth/login/oauth2/code/github",
+            "/auth/error",
+            "/eureka"
     );
+
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
         if (openEndpoints.stream().anyMatch(path::equals)) {
+            return chain.filter(exchange);
+        }
+
+        if (path.startsWith("/auth/oauth2/") || path.startsWith("/auth/login/oauth2/")) {
             return chain.filter(exchange);
         }
 
@@ -63,4 +74,6 @@ public class JwtAuthFilter implements GlobalFilter {
             return exchange.getResponse().setComplete();
         }
     }
+
+
 }
