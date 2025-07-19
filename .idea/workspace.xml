@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="18c7f684-36da-4c8d-b953-de33ccec6599" name="Changes" comment="Se integra OAuth2 en el msvc Auth-service y acceder mediante gitHub">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/charlyCorporation/SecurityRoles/security/config/CustomOAuth2SuccessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/com/charlyCorporation/SecurityRoles/security/config/CustomOAuth2SuccessHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/charlyCorporation/SecurityRoles/utils/JwtUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/com/charlyCorporation/SecurityRoles/utils/JwtUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,26 +54,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ApiGatewayApplication.executor": "Run",
-    "Application.CarritoComprasApplication.executor": "Run",
-    "Application.ConfigServerApplication.executor": "Run",
-    "Application.EurekaServerApplication.executor": "Run",
-    "Application.ProductosApplication.executor": "Run",
-    "Application.SecurityRolesApplication.executor": "Run",
-    "Application.VentasApplication.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Hp/OneDrive/Escritorio/SecurityRoles",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.runner"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.CarritoComprasApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ConfigServerApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ProductosApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.SecurityRolesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.VentasApplication.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Hp/OneDrive/Escritorio/SecurityRoles&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.runner&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Application.ApiGatewayApplication">
+}</component>
+  <component name="RunManager" selected="Application.SecurityRolesApplication">
     <configuration name="ApiGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.charlyCorporation.ApiGateway.ApiGatewayApplication" />
       <module name="api-gateway" />
@@ -148,8 +151,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.SecurityRolesApplication" />
-        <item itemvalue="Application.ApiGatewayApplication" />
         <item itemvalue="Application.EurekaServerApplication" />
+        <item itemvalue="Application.ApiGatewayApplication" />
         <item itemvalue="Application.ConfigServerApplication" />
         <item itemvalue="Application.CarritoComprasApplication" />
       </list>
@@ -180,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752865766224</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Se integra OAuth2 en el msvc Auth-service y acceder mediante gitHub">
+      <option name="closed" value="true" />
+      <created>1752870184151</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1752870184151</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
