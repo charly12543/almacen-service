@@ -11,6 +11,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -25,38 +26,46 @@ public class JwtAuthFilter implements GlobalFilter {
     @Value("${security.jwt.user.generator}")
     private String jwtIssuer;
 
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    private final List<String> openEndpoints = List.of(
-            "/auth/login",
-            "/auth/register",
-            "/auth/oauth2/authorization/github",
-            "/auth/login/oauth2/code/github",
-            "/auth/error",
-            "/eureka"
+    private final List<String> openPatterns = List.of(
+            "/login",
+            "/register",
+            "/oauth2/**",
+            "/login/oauth2/**",
+            "/error",
+            "/eureka/**"
     );
+
 
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
-        if (openEndpoints.stream().anyMatch(path::equals)) {
+        System.out.println("📍 PATH recibido: '" + path + "'");
+
+        boolean isOpen = openPatterns.stream()
+                .anyMatch(pattern -> pathMatcher.match(pattern, path));
+
+        System.out.println("🔓 ¿Ruta pública reconocida?: " + isOpen);
+
+        if (isOpen) {
+            System.out.println("✅ Ruta pública, continúa sin token");
             return chain.filter(exchange);
         }
-
-        if (path.startsWith("/auth/oauth2/") || path.startsWith("/auth/login/oauth2/")) {
-            return chain.filter(exchange);
-        }
-
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("❌ No hay token válido en Authorization Header");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7); // Elimina "Bearer "
+
+        System.out.println("🔑 Token recibido: " + token);
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
@@ -66,14 +75,14 @@ public class JwtAuthFilter implements GlobalFilter {
 
             DecodedJWT decodedJWT = verifier.verify(token);
 
-            // Token válido, continúa
+            System.out.println("✅ Token JWT verificado correctamente. Usuario: " + decodedJWT.getSubject());
+
             return chain.filter(exchange);
 
         } catch (JWTVerificationException e) {
+            System.out.println("❌ Error verificando token: " + e.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
     }
-
-
 }
