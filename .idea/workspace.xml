@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18c7f684-36da-4c8d-b953-de33ccec6599" name="Changes" comment="Se integra OAuth2 en el msvc Auth-service y acceder mediante gitHub">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/Dockerfile.auth-service" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/Dockerfile.auth-service" afterDir="false" />
-    </list>
+    <list default="true" id="18c7f684-36da-4c8d-b953-de33ccec6599" name="Changes" comment="Creacion del Dockerfile en Auth-service" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,7 +18,8 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/auth-service" />
+    <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
@@ -191,12 +188,21 @@
       <option name="project" value="LOCAL" />
       <updated>1752870184151</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Creacion del Dockerfile en Auth-service">
+      <option name="closed" value="true" />
+      <created>1753814277519</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1753814277520</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="update at POM" />
     <MESSAGE value="Se integra OAuth2 en el msvc Auth-service y acceder mediante gitHub" />
-    <option name="LAST_COMMIT_MESSAGE" value="Se integra OAuth2 en el msvc Auth-service y acceder mediante gitHub" />
+    <MESSAGE value="Creacion del Dockerfile en Auth-service" />
+    <option name="LAST_COMMIT_MESSAGE" value="Creacion del Dockerfile en Auth-service" />
   </component>
 </project>
