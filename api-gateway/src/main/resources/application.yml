@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        - id: productos-service
+          uri: lb://productos
+          predicates:
+            - Path=/api/productos/**
+          filters:
+            - StripPrefix=2  # 🔥 Elimina "/api/productos"
+
+        - id: ventas-service
+          uri: lb://ventas-service
+          predicates:
+            - Path=/api/ventas/**
+          filters:
+            - StripPrefix=2  # 🔥 Elimina "/api/ventas"
+
+        - id: carrito-service
+          uri: lb://carrito-compras
+          predicates:
+            - Path=/api/carrito/**
+          filters:
+            - StripPrefix=2  # 🔥 Elimina "/api/carrito"
+
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+server:
+  port: 801
+
+security:
+  jwt:
+    private:
+      key: 46fd06bcde135409926e67bd3ede1b1b55f253a963aa06076eb6f0cbd7f49189
+    user:
+      generator: CHARLY-SECURITY

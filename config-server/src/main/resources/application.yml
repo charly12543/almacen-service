@@ -1,0 +1,23 @@
+server:
+  port: 8888  # Puerto típico para un config-server
+
+spring:
+  application:
+    name: config-server  # Nombre del servicio para Eureka
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/charly12543/Almacen.git  # URL del repositorio Git que contiene los archivos de configuración
+          searchPaths: config-data
+          username: ${GIT_USER}
+          password: ${GIT_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/  # URL del servidor Eureka
+    fetch-registry: true
+    register-with-eureka: true
+
+

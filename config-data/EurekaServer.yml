@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: EurekaServer
+
+server:
+  port: 8761
+  address: 0.0.0.0
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    disable-delta: true
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    prefer-ip-address: true
+    lease-expiration-duration-in-seconds: 30

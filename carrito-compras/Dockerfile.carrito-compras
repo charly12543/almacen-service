@@ -1,0 +1,17 @@
+# Etapa 1: Construcción del JAR con Maven
+FROM maven:3.9-eclipse-temurin-17 AS builder
+
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
+
+# Etapa 2: Imagen liviana para ejecución
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app_carrito-compras.jar
+
+EXPOSE 8086
+
+ENTRYPOINT ["java", "-jar", "app_carrito-compras.jar"]
+LABEL authors="Charly Bustamante"
