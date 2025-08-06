@@ -9,9 +9,10 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17-jdk-slim
 
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app_ventas.jar
+COPY --from=builder /app/target/*.jar app_auth-service.jar
 
-EXPOSE 8087
+EXPOSE 8090
 
-ENTRYPOINT ["java", "-jar", "app_ventas.jar"]
+ENTRYPOINT ["java", "-jar", "app_auth-service.jar"]
+
 LABEL authors="Charly Bustamante"
