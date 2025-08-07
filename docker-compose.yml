@@ -29,9 +29,9 @@ services:
       - almacen-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8761"]
-      interval: 15s
+      interval: 20s
       timeout: 10s
-      retries: 5
+      retries: 15
 
   productos:
     build:
