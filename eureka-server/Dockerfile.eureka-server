@@ -1,16 +1,18 @@
-# Etapa 1: Build
+# Etapa 1: Construcción del JAR con Maven
 FROM maven:3.9-eclipse-temurin-17 AS builder
+
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Etapa 2: Runtime con curl
+# Etapa 2: Imagen liviana para ejecución con curl incluido
 FROM openjdk:17-jdk-slim
 
-# ⚠️ Instalar curl
+WORKDIR /app
+
+# Instalamos curl
 RUN apt-get update && apt-get install -y curl && apt-get clean
 
-WORKDIR /app
 COPY --from=builder /app/target/*.jar app_eureka-server.jar
 
 EXPOSE 8761
