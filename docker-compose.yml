@@ -1,4 +1,4 @@
-version: "2.4"
+version: "3.8"
 
 services:
   mysql:
@@ -11,7 +11,7 @@ services:
     networks:
       - almacen-network
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./mysql-data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
