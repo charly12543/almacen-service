@@ -27,7 +27,7 @@ services:
     networks:
       - almacen-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
       interval: 20s
       timeout: 10s
       retries: 15

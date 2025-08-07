@@ -1,12 +1,14 @@
-# Etapa 1: Construcción del JAR con Maven
+# Etapa 1: Build
 FROM maven:3.9-eclipse-temurin-17 AS builder
-
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Etapa 2: Imagen liviana para ejecución
+# Etapa 2: Runtime con curl
 FROM openjdk:17-jdk-slim
+
+# ⚠️ Instalar curl
+RUN apt-get update && apt-get install -y curl && apt-get clean
 
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app_eureka-server.jar
@@ -15,7 +17,7 @@ EXPOSE 8761
 
 ENTRYPOINT ["java", "-jar", "app_eureka-server.jar"]
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=5 \
   CMD curl -f http://localhost:8761/actuator/health || exit 1
 
 LABEL maintainer="Charly Bustamante"
