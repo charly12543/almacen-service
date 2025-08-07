@@ -17,6 +17,7 @@ services:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
       interval: 10s
       retries: 5
+    restart: always
 
   eureka-server:
     build:
@@ -31,6 +32,7 @@ services:
       interval: 20s
       timeout: 10s
       retries: 15
+    restart: always
 
   productos:
     build:
@@ -49,8 +51,9 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/almacen_ventas
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root123
+      - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    restart: always
 
   ventas-service:
     build:
@@ -69,8 +72,9 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/almacen_ventas
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root123
+      - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    restart: always
 
   auth-service:
     build:
@@ -89,10 +93,11 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/seguridad
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root123
+      - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SECURITY_JWT_PRIVATE_KEY=46fd06bcde135409926e67bd3ede1b1b55f253a963aa06076eb6f0cbd7f49189
       - SECURITY_JWT_USER_GENERATOR=CHARLY-SECURITY
+    restart: always
 
   carrito-compras:
     build:
@@ -111,8 +116,9 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/almacen_ventas
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root123
+      - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    restart: always
 
   api-gateway:
     build:
@@ -128,6 +134,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    restart: always
 
 volumes:
   mysql_data:
