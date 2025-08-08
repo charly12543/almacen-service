@@ -5,7 +5,7 @@ services:
     image: mysql:8.4
     container_name: mysql
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes                # Sin contraseña
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes                # Permitir root sin contraseña
     ports:
       - "3306:3306"
     networks:
@@ -17,6 +17,7 @@ services:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
       interval: 10s
       retries: 5
+    restart: always
 
   eureka-server:
     build:
@@ -31,6 +32,7 @@ services:
       interval: 20s
       timeout: 10s
       retries: 15
+    restart: always
 
   productos:
     build:
@@ -135,7 +137,7 @@ services:
     restart: always
 
 volumes:
-  mysql_data:
+  mysql-data:
 
 networks:
   almacen-network:
