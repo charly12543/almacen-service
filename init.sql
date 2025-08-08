@@ -3,6 +3,6 @@ CREATE DATABASE IF NOT EXISTS almacen_ventas;
 CREATE DATABASE IF NOT EXISTS almacen_carrito;
 CREATE DATABASE IF NOT EXISTS seguridad;
 
-ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
