@@ -16,3 +16,4 @@ EXPOSE 8087
 ENTRYPOINT ["java", "-jar", "app_ventas.jar"]
 LABEL authors="Charly Bustamante"
 
+
