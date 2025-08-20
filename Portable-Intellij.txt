@@ -5,3 +5,9 @@ https://github.com/portapps/intellij-idea-ultimate-portable/releases/download/20
 
 
 https://github.com/portapps/intellij-idea-ultimate-portable/releases/download/2025.1.1.1-44/intellij-idea-ultimate-portable-win64-2025.1.1.1-44-setup.exe
+
+***************************** COMMUNITY ***********************************************
+
+https://github.com/portapps/intellij-idea-community-portable/releases/download/2025.1.1.1-58/intellij-idea-community-portable-win64-2025.1.1.1-58-setup.exe
+
+https://github.com/portapps/intellij-idea-community-portable/releases/download/2025.1.1.1-58/intellij-idea-community-portable-win64-2025.1.1.1-58-setup.exe
