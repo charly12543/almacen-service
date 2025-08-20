@@ -1,1 +1,7 @@
 https://portapps.io/download/intellij-idea-ultimate-portable-win64-2025.1.1.1-44-setup.exe/
+
+
+https://github.com/portapps/intellij-idea-ultimate-portable/releases/download/2025.1.1.1-44/intellij-idea-ultimate-portable-win64-2025.1.1.1-44-setup.exe
+
+
+https://github.com/portapps/intellij-idea-ultimate-portable/releases/download/2025.1.1.1-44/intellij-idea-ultimate-portable-win64-2025.1.1.1-44-setup.exe
