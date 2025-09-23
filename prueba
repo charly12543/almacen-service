@@ -1,112 +1,133 @@
-public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute,List<MultipartFile> multiFiles) throws Exception {
-		logger.info("Entrando a executeReconV2");
-		FormatErrorFile contentErrorFile = new FormatErrorFile();
-		List<ContentErrorFile> listErrorFile = new ArrayList<ContentErrorFile>();
-		List<String> errList = new ArrayList<>(); //Errores Equity
-		int idReconExe = 0;
-		int idRecon = processExecute.getId_recon_process();
-		int countErrorFile = 0;
-		logger.info("*** Nombre Estructura: "+ processExecute.getNameStructure());
-		String structureName = processExecute.getNameStructure();
-		logger.info("**** Validate structure: " + structureName);
-		String nameSP = processExecute.getNameSP();
-		logger.info("se ejecutara reconciliacion con el SP :" +  EncodeFile64.cleanString(nameSP));
+private static final String UPLOAD_DIRECTORY = System.getProperty("java.io.tmpdir");
 
-		idReconExe = processReconSpringDao.insertReconExecute(processExecute.getIdUser(),
-				processExecute.getId_recon_process());
+public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<MultipartFile> multiFiles) throws Exception {
+    logger.info("Entrando a executeReconV2");
+    FormatErrorFile contentErrorFile = new FormatErrorFile();
+    List<ContentErrorFile> listErrorFile = new ArrayList<>();
+    List<String> errList = new ArrayList<>();
+    int idReconExe = 0;
+    int idRecon = processExecute.getId_recon_process();
+    int countErrorFile = 0;
 
-		logger.info("idReconExe: " + idReconExe);
-		if (idReconExe > 0) {
-			long timerInicio = System.currentTimeMillis();
-			for (InputFiles file : processExecute.getInputFiles()) {
-				File archRecon = this.getInsumo(file.getFullName(), multiFiles);
-				if(archRecon == null) {
-					continue;
-				}
-				List<StatementConfigurationDTO> stamentConfList = processReconSpringDao.getStatementConfiguration(file.getId_input_file());
-				processReconSpringDao.updateReconExe(idReconExe, 9, file.getId_input_file(),"");
-				ContentErrorFile error = new ContentErrorFile();
-				if(stamentConfList == null || stamentConfList.isEmpty()){
-					processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(),ConstantsEquity.NO_CONFIG_CARGA);
-					error.setDescription_error(ConstantsEquity.ERROR_CARGA + file.getId_input_file() + " "
-							+ file.getFullName().trim() + ConstantsEquity.ERR_BD_CARGA);
-					logger.warn(ConstantsEquity.EQUITY_ERROR +":{}" + error);
-					listErrorFile.add(error);
-					break;
-				}
-				try {
-					errList = procesarReconciliacionesEquityV2(stamentConfList, archRecon, idReconExe,file.getId_input_file());
-					if (null != errList && !errList.isEmpty()) {
-						processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(),ConstantsEquity.ERROR_FIELD);
-						for (String err : errList) {
-							error.setDescription_error(err);
-							listErrorFile.add(error);
-							logger.warn(ConstantsEquity.EQUITY_ERROR +":{}" + error);
-							countErrorFile++;
-						}
-						break;
-					}
-					processReconSpringDao.updateReconExe(idReconExe, 14, file.getId_input_file(),"");
+    logger.info("*** Nombre Estructura: " + processExecute.getNameStructure());
+    String structureName = processExecute.getNameStructure();
+    logger.info("**** Validate structure: " + structureName);
+    String nameSP = processExecute.getNameSP();
+    logger.info("se ejecutara reconciliacion con el SP :" + EncodeFile64.cleanString(nameSP));
 
-				}catch(BatchSqlException eB) {
-					logger.warn(MessageFormat.format("ERR: {0}.", eB));
-					error.setDescription_error(eB.getMessage());
-					listErrorFile.add(error);
-					countErrorFile++;
-					processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(),ConstantsEquity.ERROR_FIELD);
-					break;
-				}
-				catch (Exception e) {
-					logger.warn(MessageFormat.format("WARN: {0}.", e));
-					error.setDescription_error(e.getMessage());
-					listErrorFile.add(error);
-					countErrorFile++;
-					processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(),ConstantsEquity.ERROR_CARGA+file.getFullName());
-					break;
-				}
-			}//END FOR
-			long timerOutput = System.currentTimeMillis() - timerInicio;
-			String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
-			logger.info("TIMER:TOTAL:"+idRecon+":"+processExecute.getNameStructure()+":"+strTimer);
-		} //END IF idReconExe > 0
+    idReconExe = processReconSpringDao.insertReconExecute(
+            processExecute.getIdUser(),
+            processExecute.getId_recon_process()
+    );
 
-		if (!listErrorFile.isEmpty()) {
-			contentErrorFile = new FormatErrorFile();
+    logger.info("idReconExe: " + idReconExe);
+    if (idReconExe > 0) {
+        long timerInicio = System.currentTimeMillis();
 
-			contentErrorFile.setStatus("Error al cargar insumos de conciliación " + structureName);
-			contentErrorFile.setContentErrorFile(listErrorFile);
-			contentErrorFile.setValid(false);
+        for (InputFiles file : processExecute.getInputFiles()) {
 
-			if(countErrorFile>0) { processReconSpringDao.updateReconExe(idReconExe, 16, 0, "");}
-			else {processReconSpringDao.updateReconExe(idReconExe, 15, 0, "");}
+            // 🔒 Sanitizar el nombre del InputFile antes de usarlo
+            String safeFullName = Paths.get(file.getFullName())
+                                       .getFileName()
+                                       .toString()
+                                       .replace("..", "");
 
-		} else {
-			contentErrorFile.setValid(true);
-		}
+            // llamar a getInsumo con el fullName sanitizado
+            File archRecon = this.getInsumo(safeFullName, multiFiles);
 
-		if (contentErrorFile.isValid()) {
-			processReconSpringDao.updateReconExe(idReconExe, 2, 0,"");
-			try{
-				long timerInicio = System.currentTimeMillis();
-				processReconSpringDao.executedRecon(nameSP, idRecon, idReconExe);
-				long timerOutput = System.currentTimeMillis() - timerInicio;
-				String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
-				logger.info("TIMER:EXECUTE:"+idRecon+":"+processExecute.getNameStructure()+":"+strTimer);
-			}catch(SQLException e) {
-				logger.info(MessageFormat.format("Err: {0}." , e));
-				ContentErrorFile error = new  ContentErrorFile();
-				error.setDescription_error(e.getMessage());
-				contentErrorFile = new FormatErrorFile();
-				List<ContentErrorFile> list = new ArrayList<>();
-				list.add(error);
-				contentErrorFile.setStatus("Error al cargar insumos de conciliación " + structureName);
-				contentErrorFile.setContentErrorFile(list );
-				contentErrorFile.setValid(false);
-				processReconSpringDao.updateReconExe(idReconExe, 36, 0,"");
-			}
-		}
+            if (archRecon == null) {
+                continue;
+            }
 
-		logger.info("countError preReturn: {}" + countErrorFile);
+            List<StatementConfigurationDTO> stamentConfList =
+                    processReconSpringDao.getStatementConfiguration(file.getId_input_file());
 
-		return contentErrorFile;
-	}
+            processReconSpringDao.updateReconExe(idReconExe, 9, file.getId_input_file(), "");
+            ContentErrorFile error = new ContentErrorFile();
+
+            if (stamentConfList == null || stamentConfList.isEmpty()) {
+                processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.NO_CONFIG_CARGA);
+                error.setDescription_error(ConstantsEquity.ERROR_CARGA + file.getId_input_file() + " "
+                        + safeFullName.trim() + ConstantsEquity.ERR_BD_CARGA);
+                logger.warn(ConstantsEquity.EQUITY_ERROR + ":{}" + error);
+                listErrorFile.add(error);
+                break;
+            }
+
+            try {
+                errList = procesarReconciliacionesEquityV2(stamentConfList, archRecon, idReconExe, file.getId_input_file());
+                if (errList != null && !errList.isEmpty()) {
+                    processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_FIELD);
+                    for (String err : errList) {
+                        error.setDescription_error(err);
+                        listErrorFile.add(error);
+                        logger.warn(ConstantsEquity.EQUITY_ERROR + ":{}" + error);
+                        countErrorFile++;
+                    }
+                    break;
+                }
+                processReconSpringDao.updateReconExe(idReconExe, 14, file.getId_input_file(), "");
+            } catch (BatchSqlException eB) {
+                logger.warn(MessageFormat.format("ERR: {0}.", eB));
+                error.setDescription_error(eB.getMessage());
+                listErrorFile.add(error);
+                countErrorFile++;
+                processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_FIELD);
+                break;
+            } catch (Exception e) {
+                logger.warn(MessageFormat.format("WARN: {0}.", e));
+                error.setDescription_error(e.getMessage());
+                listErrorFile.add(error);
+                countErrorFile++;
+                processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_CARGA + safeFullName);
+                break;
+            }
+        } // END FOR
+
+        long timerOutput = System.currentTimeMillis() - timerInicio;
+        String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
+        logger.info("TIMER:TOTAL:" + idRecon + ":" + processExecute.getNameStructure() + ":" + strTimer);
+    } // END IF idReconExe > 0
+
+    // resto de tu lógica para setear contentErrorFile
+    if (!listErrorFile.isEmpty()) {
+        contentErrorFile = new FormatErrorFile();
+        contentErrorFile.setStatus("Error al cargar insumos de conciliación " + structureName);
+        contentErrorFile.setContentErrorFile(listErrorFile);
+        contentErrorFile.setValid(false);
+
+        if (countErrorFile > 0) {
+            processReconSpringDao.updateReconExe(idReconExe, 16, 0, "");
+        } else {
+            processReconSpringDao.updateReconExe(idReconExe, 15, 0, "");
+        }
+    } else {
+        contentErrorFile.setValid(true);
+    }
+
+    if (contentErrorFile.isValid()) {
+        processReconSpringDao.updateReconExe(idReconExe, 2, 0, "");
+        try {
+            long timerInicio = System.currentTimeMillis();
+            processReconSpringDao.executedRecon(nameSP, idRecon, idReconExe);
+            long timerOutput = System.currentTimeMillis() - timerInicio;
+            String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
+            logger.info("TIMER:EXECUTE:" + idRecon + ":" + processExecute.getNameStructure() + ":" + strTimer);
+        } catch (SQLException e) {
+            logger.info(MessageFormat.format("Err: {0}.", e));
+            ContentErrorFile error = new ContentErrorFile();
+            error.setDescription_error(e.getMessage());
+            contentErrorFile = new FormatErrorFile();
+            List<ContentErrorFile> list = new ArrayList<>();
+            list.add(error);
+            contentErrorFile.setStatus("Error al cargar insumos de conciliación " + structureName);
+            contentErrorFile.setContentErrorFile(list);
+            contentErrorFile.setValid(false);
+            processReconSpringDao.updateReconExe(idReconExe, 36, 0, "");
+        }
+    }
+
+    logger.info("countError preReturn: {}" + countErrorFile);
+    return contentErrorFile;
+}
+			
