@@ -1,169 +1,46 @@
-public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<MultipartFile> multiFiles) throws Exception {
-    logger.info("Entrando a executeReconV2");
+for (InputFiles file : processExecute.getInputFiles()) {
+    Path safePath = safeDir.resolve(file.getFullName()).normalize();
 
-    FormatErrorFile contentErrorFile = new FormatErrorFile();
-    List<ContentErrorFile> listErrorFile = new ArrayList<>();
-    List<String> errList = new ArrayList<>();
-    int idReconExe = 0;
-    int idRecon = processExecute.getId_recon_process();
-    int countErrorFile = 0;
-
-    logger.info("*** Nombre Estructura: " + processExecute.getNameStructure());
-    String structureName = processExecute.getNameStructure();
-    logger.info("**** Validate structure: " + structureName);
-    String nameSP = processExecute.getNameSP();
-    logger.info("Se ejecutará reconciliación con el SP: " + EncodeFile64.cleanString(nameSP));
-
-    idReconExe = processReconSpringDao.insertReconExecute(
-            processExecute.getIdUser(),
-            processExecute.getId_recon_process()
-    );
-
-    logger.info("idReconExe: " + idReconExe);
-
-    if (idReconExe > 0) {
-        long timerInicio = System.currentTimeMillis();
-
-        // =============================
-        // Directorio seguro
-        // =============================
-        Path safeDir = Paths.get(UPLOAD_DIRECTORY).toAbsolutePath().normalize();
-
-        // =============================
-        // Sanitización de multiFiles
-        // =============================
-        List<MultipartFile> sanitizedFiles = new ArrayList<>();
-        if (multiFiles != null) {
-            for (MultipartFile mf : multiFiles) {
-                if (mf == null) {
-                    continue;
-                }
-                if (mf.getOriginalFilename() == null) {
-                    continue;
-                }
-
-                Path safePath = safeDir.resolve(mf.getOriginalFilename()).normalize();
-                if (!safePath.startsWith(safeDir)) {
-                    logger.warn("No se puede cargar el archivo por intento de Path Traversal: {}", mf.getOriginalFilename());
-                    continue;
-                }
-
-                sanitizedFiles.add(mf);
-            }
-        }
-
-        // =============================
-        // Sanitización de InputFiles
-        // =============================
-        if (processExecute.getInputFiles() != null) {
-            for (InputFiles file : processExecute.getInputFiles()) {
-                Path safePath = safeDir.resolve(file.getFullName()).normalize();
-                if (!safePath.startsWith(safeDir)) {
-                    logger.warn("No se puede cargar el archivo por intento de Path Traversal: {}", file.getFullName());
-                    continue;
-                }
-
-                // =============================
-                // Lógica original de tu método
-                // =============================
-                File archRecon = this.getInsumo(safePath.getFileName().toString(), sanitizedFiles);
-                if (archRecon == null) {
-                    continue;
-                }
-
-                List<StatementConfigurationDTO> stamentConfList = processReconSpringDao
-                        .getStatementConfiguration(file.getId_input_file());
-                processReconSpringDao.updateReconExe(idReconExe, 9, file.getId_input_file(), "");
-                ContentErrorFile error = new ContentErrorFile();
-
-                if (stamentConfList == null || stamentConfList.isEmpty()) {
-                    processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.NO_CONFIG_CARGA);
-                    error.setDescription_error(ConstantsEquity.ERROR_CARGA + file.getId_input_file() + " "
-                            + file.getFullName().trim() + ConstantsEquity.ERR_BD_CARGA);
-                    logger.warn(ConstantsEquity.EQUITY_ERROR + ":{}" + error);
-                    listErrorFile.add(error);
-                    break;
-                }
-
-                try {
-                    errList = procesarReconciliacionesEquityV2(stamentConfList, archRecon, idReconExe, file.getId_input_file());
-                    if (errList != null && !errList.isEmpty()) {
-                        processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_FIELD);
-                        for (String err : errList) {
-                            error.setDescription_error(err);
-                            listErrorFile.add(error);
-                            logger.warn(ConstantsEquity.EQUITY_ERROR + ":{}" + error);
-                            countErrorFile++;
-                        }
-                        break;
-                    }
-                    processReconSpringDao.updateReconExe(idReconExe, 14, file.getId_input_file(), "");
-                } catch (BatchSqlException eB) {
-                    logger.warn(MessageFormat.format("ERR: {0}.", eB));
-                    error.setDescription_error(eB.getMessage());
-                    listErrorFile.add(error);
-                    countErrorFile++;
-                    processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_FIELD);
-                    break;
-                } catch (Exception e) {
-                    logger.warn(MessageFormat.format("WARN: {0}.", e));
-                    error.setDescription_error(e.getMessage());
-                    listErrorFile.add(error);
-                    countErrorFile++;
-                    processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(),
-                            ConstantsEquity.ERROR_CARGA + file.getFullName());
-                    break;
-                }
-            }
-        }
-
-        long timerOutput = System.currentTimeMillis() - timerInicio;
-        String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
-        logger.info("TIMER:TOTAL:" + idRecon + ":" + processExecute.getNameStructure() + ":" + strTimer);
+    if (!safePath.startsWith(safeDir)) {
+        logger.warn("No se puede cargar el archivo: {}", file.getFullName());
+        continue;
     }
 
-    // =============================
-    // Manejo de errores
-    // =============================
-    if (!listErrorFile.isEmpty()) {
-        contentErrorFile.setStatus("Error al cargar insumos de conciliación " + structureName);
-        contentErrorFile.setContentErrorFile(listErrorFile);
-        contentErrorFile.setValid(false);
-
-        if (countErrorFile > 0) {
-            processReconSpringDao.updateReconExe(idReconExe, 16, 0, "");
-        } else {
-            processReconSpringDao.updateReconExe(idReconExe, 15, 0, "");
-        }
-    } else {
-        contentErrorFile.setValid(true);
+    // ✅ ahora usamos solo nombres validados
+    if (!sanitizedFileNames.contains(safePath.getFileName().toString())) {
+        logger.warn("El archivo {} no se encuentra en la lista segura", file.getFullName());
+        continue;
     }
 
-    // =============================
-    // Ejecución final del SP si todo es válido
-    // =============================
-    if (contentErrorFile.isValid()) {
-        processReconSpringDao.updateReconExe(idReconExe, 2, 0, "");
-        try {
-            long timerInicio = System.currentTimeMillis();
-            processReconSpringDao.executedRecon(nameSP, idRecon, idReconExe);
-            long timerOutput = System.currentTimeMillis() - timerInicio;
-            String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
-            logger.info("TIMER:EXECUTE:" + idRecon + ":" + processExecute.getNameStructure() + ":" + strTimer);
-        } catch (SQLException e) {
-            logger.info(MessageFormat.format("Err: {0}.", e));
-            ContentErrorFile error = new ContentErrorFile();
-            error.setDescription_error(e.getMessage());
-            contentErrorFile = new FormatErrorFile();
-            List<ContentErrorFile> list = new ArrayList<>();
-            list.add(error);
-            contentErrorFile.setStatus("Error al cargar insumos de conciliación " + structureName);
-            contentErrorFile.setContentErrorFile(list);
-            contentErrorFile.setValid(false);
-            processReconSpringDao.updateReconExe(idReconExe, 36, 0, "");
-        }
+    File archRecon = this.getInsumo(safePath.getFileName().toString(), multiFiles);
+    if (archRecon == null) {
+        continue;
     }
 
-    logger.info("countError preReturn: {}" + countErrorFile);
-    return contentErrorFile;
+    // ... resto de tu lógica
+}
+
+
+// Directorio seguro
+Path safeDir = Paths.get(UPLOAD_DIRECTORY).toAbsolutePath().normalize();
+
+// Lista segura de nombres de archivos
+List<String> sanitizedFileNames = new ArrayList<>();
+
+if (multiFiles != null) {
+    for (MultipartFile multi : new ArrayList<>(multiFiles)) {
+        if (multi == null || multi.getOriginalFilename() == null) {
+            continue;
+        }
+
+        Path safePath = safeDir.resolve(multi.getOriginalFilename()).normalize();
+
+        if (!safePath.startsWith(safeDir)) {
+            logger.warn("No se puede cargar el archivo: {}", multi.getOriginalFilename());
+            continue;
+        }
+
+        // Guardamos solo el nombre validado, no el MultipartFile original
+        sanitizedFileNames.add(safePath.getFileName().toString());
+    }
 }
