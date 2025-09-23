@@ -1,4 +1,31 @@
-private static final String UPLOAD_DIRECTORY = System.getProperty("java.io.tmpdir");
+private File getInsumo(List<MultipartFile> files, String requestedFullName) throws IOException {
+    long timerInicio = System.currentTimeMillis();
+    File fileSearch = null;
+
+    for (MultipartFile multipartFile : files) {
+        String originalName = multipartFile.getOriginalFilename();
+        if (originalName != null && originalName.endsWith(requestedFullName)) {
+            // 🔒 Sanitización aquí
+            String safeName = Paths.get(originalName).getFileName().toString().replace("..", "");
+            fileSearch = new File(UPLOAD_DIRECTORY, safeName);
+
+            if (fileSearch.exists()) {
+                Files.delete(fileSearch.toPath());
+            }
+
+            Files.copy(multipartFile.getInputStream(), fileSearch.toPath());
+
+            String strTimer = ReconProcessServiceImpl.getDuration(System.currentTimeMillis() - timerInicio);
+            logger.info("TIMER:DOWNLOAD:" + fileSearch.getAbsolutePath() + ": " + strTimer);
+
+            return fileSearch;
+        }
+    }
+
+    return null;
+}
+
+
 
 public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<MultipartFile> multiFiles) throws Exception {
     logger.info("Entrando a executeReconV2");
@@ -25,15 +52,8 @@ public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<Mu
         long timerInicio = System.currentTimeMillis();
 
         for (InputFiles file : processExecute.getInputFiles()) {
-
-            // 🔒 Sanitizar el nombre del InputFile antes de usarlo
-            String safeFullName = Paths.get(file.getFullName())
-                                       .getFileName()
-                                       .toString()
-                                       .replace("..", "");
-
-            // llamar a getInsumo con el fullName sanitizado
-            File archRecon = this.getInsumo(safeFullName, multiFiles);
+            // 🔒 Llamamos a getInsumo y la sanitización se hace ahí
+            File archRecon = this.getInsumo(multiFiles, file.getFullName());
 
             if (archRecon == null) {
                 continue;
@@ -48,7 +68,7 @@ public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<Mu
             if (stamentConfList == null || stamentConfList.isEmpty()) {
                 processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.NO_CONFIG_CARGA);
                 error.setDescription_error(ConstantsEquity.ERROR_CARGA + file.getId_input_file() + " "
-                        + safeFullName.trim() + ConstantsEquity.ERR_BD_CARGA);
+                        + file.getFullName().trim() + ConstantsEquity.ERR_BD_CARGA);
                 logger.warn(ConstantsEquity.EQUITY_ERROR + ":{}" + error);
                 listErrorFile.add(error);
                 break;
@@ -79,15 +99,15 @@ public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<Mu
                 error.setDescription_error(e.getMessage());
                 listErrorFile.add(error);
                 countErrorFile++;
-                processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_CARGA + safeFullName);
+                processReconSpringDao.updateReconExe(idReconExe, 10, file.getId_input_file(), ConstantsEquity.ERROR_CARGA + file.getFullName());
                 break;
             }
-        } // END FOR
+        }
 
         long timerOutput = System.currentTimeMillis() - timerInicio;
         String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
         logger.info("TIMER:TOTAL:" + idRecon + ":" + processExecute.getNameStructure() + ":" + strTimer);
-    } // END IF idReconExe > 0
+    }
 
     // resto de tu lógica para setear contentErrorFile
     if (!listErrorFile.isEmpty()) {
@@ -130,4 +150,3 @@ public FormatErrorFile executeReconV2(ProcessExecuteFile processExecute, List<Mu
     logger.info("countError preReturn: {}" + countErrorFile);
     return contentErrorFile;
 }
-			
