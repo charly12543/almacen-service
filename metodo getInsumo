@@ -1,29 +1,45 @@
- private File getInsumo(String fullName, List<MultipartFile> files) throws IOException {
-		long timerInicio = System.currentTimeMillis();
-		File fileSearch = null;
-		Predicate<MultipartFile> busquedaFile = entrada -> StringUtils.hasLength(fullName) &&
-				entrada.getOriginalFilename().endsWith(fullName) ;
-		Optional<MultipartFile> multFind =files.stream().filter(busquedaFile).findFirst();
-		if(multFind.isPresent()) {
-			
-			Path pathNormalize = Paths.get(UPLOAD_DIRECTORY + separator + fullName).toAbsolutePath().normalize();
-			Path pathBaseMulti = Paths.get(UPLOAD_DIRECTORY + separator + multFind.get().getOriginalFilename()).toAbsolutePath().normalize();
-                    			
-			fileSearch = new File(pathNormalize.toString());
-			if(fileSearch.exists()) {
-				Files.delete(fileSearch.toPath());
-			}
-			
-			File fileSearchMulti = new File(pathBaseMulti.toString());
-			if(fileSearchMulti.exists()) {
-				Files.delete(fileSearchMulti.toPath());
-			}			
-			
-			Path pathBase = Paths.get(fileSearch.getAbsolutePath());
-			Files.copy(pathBaseMulti, pathBase,StandardCopyOption.REPLACE_EXISTING);
-			long timerOutput = System.currentTimeMillis() - timerInicio;
-			String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
-			logger.info("TIMER:DOWNLOAD:"+fileSearch.getAbsolutePath()+":"+strTimer);
-		}
-		return fileSearch;
-	}
+private File getInsumo(String fullName, List<MultipartFile> files) throws IOException {
+    long timerInicio = System.currentTimeMillis();
+    File fileSearch = null;
+
+    if (!StringUtils.hasLength(fullName) || files == null || files.isEmpty()) {
+        return null;
+    }
+
+    Optional<MultipartFile> multFind = files.stream()
+            .filter(f -> f.getOriginalFilename() != null && f.getOriginalFilename().endsWith(fullName))
+            .findFirst();
+
+    if (multFind.isPresent()) {
+        MultipartFile targetFile = multFind.get();
+
+        // Directorio base seguro
+        Path uploadDir = Paths.get(UPLOAD_DIRECTORY).toAbsolutePath().normalize();
+
+        // Paths seguros
+        Path pathSource = uploadDir.resolve(targetFile.getOriginalFilename()).normalize();
+        Path pathDest = uploadDir.resolve(fullName).normalize();
+
+        // Validar que ambos paths estén dentro del directorio seguro
+        if (!pathSource.startsWith(uploadDir) || !pathDest.startsWith(uploadDir)) {
+            throw new SecurityException("Intento de Path Traversal detectado.");
+        }
+
+        // Eliminar archivos antiguos si existen
+        Files.deleteIfExists(pathSource);
+        Files.deleteIfExists(pathDest);
+
+        // Guardar el archivo del MultipartFile
+        try (var inputStream = targetFile.getInputStream()) {
+            Files.copy(inputStream, pathDest, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        fileSearch = pathDest.toFile();
+
+        long timerOutput = System.currentTimeMillis() - timerInicio;
+        String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
+        logger.info("TIMER: DOWNLOAD: {} : {}", fileSearch.getAbsolutePath(), strTimer);
+    }
+
+    return fileSearch;
+}
