@@ -1,0 +1,29 @@
+ private File getInsumo(String fullName, List<MultipartFile> files) throws IOException {
+		long timerInicio = System.currentTimeMillis();
+		File fileSearch = null;
+		Predicate<MultipartFile> busquedaFile = entrada -> StringUtils.hasLength(fullName) &&
+				entrada.getOriginalFilename().endsWith(fullName) ;
+		Optional<MultipartFile> multFind =files.stream().filter(busquedaFile).findFirst();
+		if(multFind.isPresent()) {
+			
+			Path pathNormalize = Paths.get(UPLOAD_DIRECTORY + separator + fullName).toAbsolutePath().normalize();
+			Path pathBaseMulti = Paths.get(UPLOAD_DIRECTORY + separator + multFind.get().getOriginalFilename()).toAbsolutePath().normalize();
+                    			
+			fileSearch = new File(pathNormalize.toString());
+			if(fileSearch.exists()) {
+				Files.delete(fileSearch.toPath());
+			}
+			
+			File fileSearchMulti = new File(pathBaseMulti.toString());
+			if(fileSearchMulti.exists()) {
+				Files.delete(fileSearchMulti.toPath());
+			}			
+			
+			Path pathBase = Paths.get(fileSearch.getAbsolutePath());
+			Files.copy(pathBaseMulti, pathBase,StandardCopyOption.REPLACE_EXISTING);
+			long timerOutput = System.currentTimeMillis() - timerInicio;
+			String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
+			logger.info("TIMER:DOWNLOAD:"+fileSearch.getAbsolutePath()+":"+strTimer);
+		}
+		return fileSearch;
+	}
