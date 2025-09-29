@@ -1,45 +1,6 @@
 <!-- ========================================= -->
-<!-- LOGGING: Log4j 2 + SLF4J -->
+<!-- LOGGING: Log4j 2 + SLF4J limpio -->
 <!-- ========================================= -->
-
-<!-- slf4j-log4j12: excluir log4j 1.2.17 -->
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-log4j12</artifactId>
-    <version>1.7.36</version>
-    <exclusions>
-        <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </exclusion>
-    </exclusions>
-</dependency>
-
-<!-- Bridge JUL (java.util.logging) a SLF4J, sin traer slf4j-reload4j -->
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>jul-to-slf4j</artifactId>
-    <version>1.7.36</version>
-    <exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
-        </exclusion>
-    </exclusions>
-</dependency>
-
-<!-- Dependencias de librerías conflictivas: ejemplo some-lib -->
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>some-lib</artifactId>
-    <version>1.0.0</version>
-    <exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
-        </exclusion>
-    </exclusions>
-</dependency>
 
 <!-- Log4j 2 API -->
 <dependency>
@@ -55,16 +16,37 @@
     <version>2.24.1</version>
 </dependency>
 
-<!-- SLF4J -> Log4j 2 bridge -->
+<!-- SLF4J -> Log4j 2 bridge (obligatorio para que SLF4J funcione) -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-slf4j-impl</artifactId>
     <version>2.24.1</version>
 </dependency>
 
-<!-- Puente para librerías que aún usan Log4j 1.x API -->
+<!-- Opcional: puente para librerías que aún usan Log4j 1.x API -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-1.2-api</artifactId>
     <version>2.24.1</version>
+</dependency>
+
+<!-- Ejemplo de librería conflictiva: se excluyen implementaciones SLF4J antiguas -->
+<dependency>
+    <groupId>com.example</groupId>
+    <artifactId>some-lib</artifactId>
+    <version>1.0.0</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </exclusion>
+    </exclusions>
 </dependency>
