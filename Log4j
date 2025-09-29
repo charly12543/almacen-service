@@ -1,4 +1,8 @@
-<!-- Excluir el viejo puente que arrastra log4j:1.2.17 -->
+<!-- ========================================= -->
+<!-- Log4j 2 + SLF4J configuration -->
+<!-- ========================================= -->
+
+<!-- Excluir log4j 1.2.17 si alguna dependencia la trae -->
 <dependency>
     <groupId>org.slf4j</groupId>
     <artifactId>slf4j-log4j12</artifactId>
@@ -11,28 +15,41 @@
     </exclusions>
 </dependency>
 
-<!-- API de Log4j 2 -->
+<!-- Excluir slf4j-reload4j si alguna dependencia la trae -->
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>jul-to-slf4j</artifactId>
+    <version>1.7.36</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+<!-- Log4j 2 API -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-api</artifactId>
     <version>2.24.1</version>
 </dependency>
 
-<!-- Implementación de Log4j 2 -->
+<!-- Log4j 2 Core -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-core</artifactId>
     <version>2.24.1</version>
 </dependency>
 
-<!-- Puente SLF4J -> Log4j 2 (para que tus librerías que usan SLF4J funcionen con Log4j 2) -->
+<!-- SLF4J -> Log4j 2 bridge (necesario para que SLF4J use Log4j 2) -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-slf4j-impl</artifactId>
     <version>2.24.1</version>
 </dependency>
 
-<!-- Opcional: si alguna librería sigue llamando a log4j 1.x, este puente redirige esas llamadas a Log4j 2 -->
+<!-- Opcional: puente para librerías que todavía usan Log4j 1.x API -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-1.2-api</artifactId>
