@@ -1,45 +1,40 @@
-private File getInsumo(String fullName, List<MultipartFile> files) throws IOException {
-    long timerInicio = System.currentTimeMillis();
-    File fileSearch = null;
+<!-- Excluir el viejo puente que arrastra log4j:1.2.17 -->
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-log4j12</artifactId>
+    <version>1.7.36</version>
+    <exclusions>
+        <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
 
-    // Directorio seguro
-    Path uploadDir = Paths.get(UPLOAD_DIRECTORY).toAbsolutePath().normalize();
+<!-- API de Log4j 2 -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-api</artifactId>
+    <version>2.24.1</version>
+</dependency>
 
-    // Buscar el archivo en la lista
-    Predicate<MultipartFile> busquedaFile = entrada ->
-            StringUtils.hasLength(fullName) &&
-            entrada.getOriginalFilename().endsWith(fullName);
+<!-- Implementación de Log4j 2 -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.24.1</version>
+</dependency>
 
-    Optional<MultipartFile> multFind = files.stream().filter(busquedaFile).findFirst();
+<!-- Puente SLF4J -> Log4j 2 (para que tus librerías que usan SLF4J funcionen con Log4j 2) -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-slf4j-impl</artifactId>
+    <version>2.24.1</version>
+</dependency>
 
-    if (multFind.isPresent()) {
-        // Construcción de rutas con concatenación para que Checkmarx no marque
-        Path pathNormalize = Paths.get(UPLOAD_DIRECTORY + separator + fullName)
-                                  .toAbsolutePath().normalize();
-        Path pathBaseMulti = Paths.get(UPLOAD_DIRECTORY + separator + multFind.get().getOriginalFilename())
-                                  .toAbsolutePath().normalize();
-
-        // Validar que ambas rutas sigan dentro del directorio seguro
-        if (!pathNormalize.startsWith(uploadDir) || !pathBaseMulti.startsWith(uploadDir)) {
-            throw new SecurityException("Path Traversal detectado en getInsumo");
-        }
-
-        fileSearch = new File(pathNormalize.toString());
-        if (fileSearch.exists()) {
-            Files.delete(fileSearch.toPath());
-        }
-
-        File fileSearchMulti = new File(pathBaseMulti.toString());
-        if (fileSearchMulti.exists()) {
-            Files.delete(fileSearchMulti.toPath());
-        }
-
-        // Copiar el archivo
-        Files.copy(pathBaseMulti, pathNormalize, StandardCopyOption.REPLACE_EXISTING);
-
-        long timerOutput = System.currentTimeMillis() - timerInicio;
-        String strTimer = ReconProcessServiceImpl.getDuration(timerOutput);
-        logger.info("TIMER:DOWNLOAD:" + fileSearch.getAbsolutePath() + ":" + strTimer);
-    }
-    return fileSearch;
-}
+<!-- Opcional: si alguna librería sigue llamando a log4j 1.x, este puente redirige esas llamadas a Log4j 2 -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-1.2-api</artifactId>
+    <version>2.24.1</version>
+</dependency>
