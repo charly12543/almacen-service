@@ -1,52 +1,9 @@
-<!-- ========================================= -->
-<!-- LOGGING: Log4j 2 + SLF4J limpio -->
-<!-- ========================================= -->
-
-<!-- Log4j 2 API -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-api</artifactId>
-    <version>2.24.1</version>
-</dependency>
-
-<!-- Log4j 2 Core -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <version>2.24.1</version>
-</dependency>
-
-<!-- SLF4J -> Log4j 2 bridge (obligatorio para que SLF4J funcione) -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-slf4j-impl</artifactId>
-    <version>2.24.1</version>
-</dependency>
-
-<!-- Opcional: puente para librerías que aún usan Log4j 1.x API -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-1.2-api</artifactId>
-    <version>2.24.1</version>
-</dependency>
-
-<!-- Ejemplo de librería conflictiva: se excluyen implementaciones SLF4J antiguas -->
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>some-lib</artifactId>
-    <version>1.0.0</version>
-    <exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
-        </exclusion>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-        <exclusion>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </exclusion>
-    </exclusions>
-</dependency>
+<jboss-deployment-structure>
+    <deployment>
+        <exclusions>
+            <!-- Evita que JBoss inyecte sus propios módulos de SLF4J y Log4j -->
+            <module name="org.slf4j" />
+            <module name="org.apache.log4j" />
+        </exclusions>
+    </deployment>
+</jboss-deployment-structure>
